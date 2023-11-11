@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/users.model';
 import * as bcrypt from 'bcrypt'
 import { CreateUserDto, UpdateUserDto } from './dto/create-user.dto';
+import { Watchlist } from '../watchlist/models/watchlist.module';
 
 
 @Injectable()
@@ -31,7 +32,11 @@ export class UsersService {
   async publicUser (email: string) {
     return this.userRepository.findOne({
       where: {email},
-      attributes: {exclude: ['password']}
+      attributes: {exclude: ['password']},
+      include: {
+        model: Watchlist,
+        required: false
+      }
     })
   }
 
@@ -40,7 +45,7 @@ export class UsersService {
     return dto
   }
 
-  async deleteUser (email: string) {
+  async deleteUser (email: string): Promise<boolean> {
     await this.userRepository.destroy({where: {email}})
     return true
   }
