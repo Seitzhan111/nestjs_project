@@ -5,20 +5,33 @@ import { CreateAssetResponse } from './response';
 
 @Injectable()
 export class WatchlistService {
-  constructor(@InjectModel(Watchlist) private readonly watchlistRepository: typeof Watchlist) {}
+  constructor(
+    @InjectModel(Watchlist)
+    private readonly watchlistRepository: typeof Watchlist,
+  ) {}
 
-  async createAsset (user, dto): Promise<CreateAssetResponse> {
-    const watchlist = {
-      user: user.id,
-      name: dto.name,
-      assetId: dto.assetId
+  async createAsset(user, dto): Promise<CreateAssetResponse> {
+    try {
+      const watchlist = {
+        user: user.id,
+        name: dto.name,
+        assetId: dto.assetId,
+      };
+      await this.watchlistRepository.create(watchlist);
+      return watchlist;
+    } catch (e) {
+      throw new Error(e);
     }
-    await this.watchlistRepository.create(watchlist)
-    return watchlist
   }
 
-  async deleteAsset (userId: number, assetId: string): Promise<boolean> {
-    await this.watchlistRepository.destroy({where: {id: assetId, user: userId}})
-    return true
+  async deleteAsset(userId: number, assetId: string): Promise<boolean> {
+    try {
+      await this.watchlistRepository.destroy({
+        where: { id: assetId, user: userId },
+      });
+      return true;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 }
